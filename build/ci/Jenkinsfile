@@ -30,13 +30,6 @@ pipeline {
         GIT_CREDENTIAL_ID = "github-ssh"
     }
     triggers {
-        when {
-            anyOf { 
-                branch 'develop'
-                branch 'release/*'
-                branch 'master'
-            }
-        }
         pollSCM 'H/5 * * * *'
     }
     agent {
