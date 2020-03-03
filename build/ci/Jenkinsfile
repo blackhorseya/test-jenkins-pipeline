@@ -5,8 +5,9 @@
 def getCrontab(String branch) {
     switch(branch) {
         case "develop":
-            return ('H/5 * * * *')
-        
+            return 'H/5 * * * *'
+        default:
+            return ''
     }
 }
 
