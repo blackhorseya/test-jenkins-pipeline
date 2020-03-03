@@ -86,7 +86,6 @@ spec:
 
                 echo """
 branch name: ${env.GIT_BRANCH}
-param branch name: ${params.branch}
 target env: ${DEPLOY_TO}
 """
                 sh label: "print all environment variable", script: "printenv | sort"
