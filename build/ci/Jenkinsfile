@@ -31,7 +31,7 @@ pipeline {
         GIT_CREDENTIAL_ID = "github-ssh"
     }
     triggers {
-        pollSCM(env.GIT_BRANCH == "develop" ? 'H/5 * * * *' : '')
+        pollSCM("${GIT_BRANCH}" == "develop" ? 'H/5 * * * *' : '')
     }
     agent {
         kubernetes {
