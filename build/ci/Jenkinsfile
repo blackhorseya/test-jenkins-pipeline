@@ -67,7 +67,7 @@ spec:
             steps {
                 script {
                     def causes = currentBuild.getBuildCauses()
-                    echo "causes: ${causes.getShortDescription()}"
+                    echo "causes: ${causes}"
 
                     def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
                     echo "changeset: ${commitChangeset}"
