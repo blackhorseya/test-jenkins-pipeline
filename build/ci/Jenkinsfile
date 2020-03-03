@@ -167,6 +167,23 @@ target env: ${DEPLOY_TO}
                 }
             }
         }
+
+        stage('Build and push docker image') {
+            when {
+                anyOf {
+                    allOf {
+                        branch 'develop'
+                        triggeredBy 'TimerTrigger'
+                    }
+                    allOf {
+                        triggeredBy cause: "UserIdCause"
+                    }
+                }
+            }
+            steps {
+                echo "deploy to ${DEPLOY_TO}"
+            }
+        }
     }
 
     post {
