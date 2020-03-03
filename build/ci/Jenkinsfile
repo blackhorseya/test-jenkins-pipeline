@@ -65,6 +65,8 @@ spec:
     stages {
         stage('Prepare') {
             steps {
+                sh label: "show git remote", script: "git remote -v"
+                
                 script {
                     def causes = currentBuild.getBuildCauses()
                     echo "123causes: ${causes}"
