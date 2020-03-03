@@ -132,11 +132,13 @@ target env: ${DEPLOY_TO}
 
         stage('Build and push docker image') {
             when {
-                expression { return currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause') != null }
-                anyOf { 
-                    branch '*develop'
-                    branch '*release/*'
-                    branch '*master'
+                allOf {
+                    expression { return currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause') != null }
+                    anyOf { 
+                        branch '*develop'
+                        branch '*release/*'
+                        branch '*master'
+                    }
                 }
             }
             steps {
