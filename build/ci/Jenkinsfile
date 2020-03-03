@@ -5,6 +5,8 @@
 pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timestamps()
     }
     environment {
         // application settings
@@ -30,7 +32,7 @@ pipeline {
         GIT_CREDENTIAL_ID = "github-ssh"
     }
     triggers {
-        pollSCM 'H/5 * * * *'
+        pollSCM('H/5 * * * *')
     }
     agent {
         kubernetes {
