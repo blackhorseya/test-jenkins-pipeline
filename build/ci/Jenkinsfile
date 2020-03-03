@@ -133,7 +133,7 @@ target env: ${DEPLOY_TO}
         stage('Static Code Analysis') {
             when {
                 allOf {
-                    branch '*develop'
+                    branch '*develop*'
                     expression {
                         return !currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty() || 
                         !currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause').isEmpty() }
@@ -146,7 +146,7 @@ target env: ${DEPLOY_TO}
 
         stage('Build and push docker image') {
             when {
-                branch 'develop'
+                branch '*develop*'
                 expression {
                     return !currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty() || 
                     !currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause').isEmpty()
