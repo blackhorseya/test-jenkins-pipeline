@@ -2,6 +2,14 @@
 
 @Library("jenkins-shared-libraries") _
 
+def getCrontab(String branch) {
+    switch(branch) {
+        case "develop":
+            return ('H/5 * * * *')
+        
+    }
+}
+
 pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
@@ -31,9 +39,7 @@ pipeline {
         GIT_CREDENTIAL_ID = "github-ssh"
     }
     triggers {
-        if ("${GIT_BRANCH}" == "develop") {
-            pollSCM('H/5 * * * *')
-        }
+        pollSCM(getCrontab(GIT_BRANCH))
     }
     agent {
         kubernetes {
