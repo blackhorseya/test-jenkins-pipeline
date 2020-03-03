@@ -9,7 +9,7 @@ pipeline {
         parallelsAlwaysFailFast()
     }
     parameters {
-        booleanParam(name: 'DEBUG_BUILD', defaultValue: false, description: 'if true, never release')
+        booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'if true, never release')
     }
     triggers {
         cron('H H(20-21) * * *')
