@@ -13,7 +13,7 @@ pipeline {
     environment {
         // application settings
         APP_NAME = "jenkins-pipeline"
-        VERSION = "1.0.0"
+        VERSION = "1.0.1"
         FULL_VERSION = "${VERSION}.${BUILD_ID}"
         IMAGE_NAME = "${DOCKER_REGISTRY_CRED_USR}/${APP_NAME}"
         CSPROJECT_NAME = "Doggy.API.WebService"
