@@ -206,6 +206,7 @@ target env: ${DEPLOY_TO}
         stage("Create Release") {
             when {
                 branch 'release/*'
+                tag pattern: "\\d+\.\\d+\.\\d+", comparator: "REGEXP"
                 expression { return !params.DEBUG_BUILD } 
             }
             steps {
