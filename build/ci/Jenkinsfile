@@ -218,8 +218,12 @@ target env: ${DEPLOY_TO}
             }
             steps {
                 echo "deploy to ${DEPLOY_TO}"
-                script {
-                    common.gitAddTag("${GIT_CREDENTIAL_ID}", "${DEPLOY_TO}", "${VERSION}")
+
+                sshagent(["${GIT_CREDENTIAL_ID}"]) {
+                    sh label: "git tag latest", script: """
+                    git tag --delete latest | exit 0 && git push --delete origin latest | exit 0
+                    git tag latest && git push --tags
+                    """
                 }
             }
         }
@@ -232,6 +236,13 @@ target env: ${DEPLOY_TO}
             }
             steps {
                 echo "create release"
+
+                sshagent(["${GIT_CREDENTIAL_ID}"]) {
+                    sh label: "git tag release-${FULL_VERSION}", script: """
+                    git tag --delete ${TAG_NAME} | exit 0 && git push --delete origin ${TAG_NAME} | exit 0
+                    git tag release-${FULL_VERSION} && git push --tags
+                    """
+                }
             }
         }
     }
