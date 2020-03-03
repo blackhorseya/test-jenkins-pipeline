@@ -3,6 +3,9 @@
 @Library("jenkins-shared-libraries") _
 
 pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+    }
     environment {
         // application settings
         APP_NAME = "jenkins-pipeline"
