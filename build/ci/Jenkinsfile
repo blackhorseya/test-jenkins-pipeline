@@ -6,6 +6,10 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
+        parallelsAlwaysFailFast()
+    }
+    parameters {
+        booleanParam(name: 'DEBUG_BUILD', defaultValue: false, description: 'if true, never release')
     }
     triggers {
         cron('H H(20-21) * * *')
@@ -13,7 +17,7 @@ pipeline {
     environment {
         // application settings
         APP_NAME = "jenkins-pipeline"
-        VERSION = "1.0.0"
+        VERSION = "1.0.1"
         FULL_VERSION = "${VERSION}.${BUILD_ID}"
         IMAGE_NAME = "${DOCKER_REGISTRY_CRED_USR}/${APP_NAME}"
         CSPROJECT_NAME = "Doggy.API.WebService"
@@ -114,13 +118,33 @@ target env: ${DEPLOY_TO}
         }
 
         stage('Test') {
-            steps {
-                container('builder') {
-                    script {
-                        dotnet.test(
-                            genCoverage: true,
-                            genReport: true
-                        )
+            parallel {
+                stage('Unit Test') {
+                    steps {
+                        container('builder') {
+                            script {
+                                dotnet.test(
+                                    genCoverage: true,
+                                    genReport: true
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('Regression Test') {
+                    when {
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
+                    }
+                    steps {
+                        container('builder') {
+                            script {
+                                dotnet.test(
+                                    genCoverage: true,
+                                    genReport: true
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -137,7 +161,8 @@ target env: ${DEPLOY_TO}
                         triggeredBy cause: "UserIdCause"
                     }
                     allOf {
-                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
                     }
                 }
             }
@@ -157,7 +182,8 @@ target env: ${DEPLOY_TO}
                         triggeredBy cause: "UserIdCause"
                     }
                     allOf {
-                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
                     }
                 }
             }
@@ -185,14 +211,37 @@ target env: ${DEPLOY_TO}
                         triggeredBy cause: "UserIdCause"
                     }
                     allOf {
-                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
                     }
                 }
             }
             steps {
                 echo "deploy to ${DEPLOY_TO}"
-                script {
-                    common.gitAddTag("${GIT_CREDENTIAL_ID}", "${DEPLOY_TO}", "${VERSION}")
+
+                sshagent(["${GIT_CREDENTIAL_ID}"]) {
+                    sh label: "git tag latest", script: """
+                    git tag --delete latest | exit 0 && git push --delete origin latest | exit 0
+                    git tag latest && git push --tags
+                    """
+                }
+            }
+        }
+
+        stage("Create Release") {
+            when {
+                tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                buildingTag()
+                expression { return !params.DEBUG_BUILD } 
+            }
+            steps {
+                echo "create release"
+
+                sshagent(["${GIT_CREDENTIAL_ID}"]) {
+                    sh label: "git tag release-${FULL_VERSION}", script: """
+                    git tag --delete ${TAG_NAME} | exit 0 && git push --delete origin ${TAG_NAME} | exit 0
+                    git tag release-${FULL_VERSION} && git push --tags
+                    """
                 }
             }
         }
