@@ -171,7 +171,7 @@ target env: ${DEPLOY_TO}
             }
         }
 
-        stage('Build and push docker image') {
+        stage("Deploy to ${DEPLOY_TO}") {
             when {
                 anyOf {
                     allOf {
