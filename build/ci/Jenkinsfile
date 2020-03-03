@@ -136,6 +136,9 @@ target env: ${DEPLOY_TO}
                     allOf {
                         triggeredBy cause: "UserIdCause"
                     }
+                    allOf {
+                        branch 'release/*'
+                    }
                 }
             }
             steps {
