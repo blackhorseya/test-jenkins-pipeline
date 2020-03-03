@@ -133,9 +133,8 @@ target env: ${DEPLOY_TO}
                 }
                 stage('Regression Test') {
                     when {
-                        branch 'release/*'
                         tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        expression { return !params.DEBUG_BUILD } 
+                        buildingTag()
                     }
                     steps {
                         container('builder') {
@@ -162,7 +161,8 @@ target env: ${DEPLOY_TO}
                         triggeredBy cause: "UserIdCause"
                     }
                     allOf {
-                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
                     }
                 }
             }
@@ -182,7 +182,8 @@ target env: ${DEPLOY_TO}
                         triggeredBy cause: "UserIdCause"
                     }
                     allOf {
-                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
                     }
                 }
             }
@@ -210,7 +211,8 @@ target env: ${DEPLOY_TO}
                         triggeredBy cause: "UserIdCause"
                     }
                     allOf {
-                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        buildingTag()
                     }
                 }
             }
@@ -224,7 +226,6 @@ target env: ${DEPLOY_TO}
 
         stage("Create Release") {
             when {
-                branch 'release/*'
                 tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
                 buildingTag()
                 expression { return !params.DEBUG_BUILD } 
