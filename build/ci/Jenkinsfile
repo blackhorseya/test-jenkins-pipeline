@@ -10,9 +10,6 @@ pipeline {
     triggers {
         pollSCM('H/5 * * * *')
     }
-    // parameters {
-    //     string(name: 'branch', defaultValue: 'develop', description: 'which branch you want to build?')
-    // }
     environment {
         // application settings
         APP_NAME = "jenkins-pipeline"
@@ -68,13 +65,7 @@ spec:
     stages {
         stage('Prepare') {
             steps {
-                // git url: "${env.GIT_URL}", branch: "${params.branch}", credentialsId: "${GIT_CREDENTIAL_ID}"
-
                 script {
-                    if (params.branch != "develop") {
-                        git url: "${env.GIT_URL}", branch: "${params.branch}", credentialsId: "${GIT_CREDENTIAL_ID}"
-                    }
-
                     def causes = currentBuild.getBuildCauses()
                     echo "causes: ${causes}"
 
