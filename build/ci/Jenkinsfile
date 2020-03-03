@@ -66,14 +66,11 @@ spec:
         stage('Prepare') {
             steps {
                 script {
-                    // Get all Causes for the current build
                     def causes = currentBuild.getBuildCauses()
+                    echo "causes: ${causes.getShortDescription()}"
 
-                    // Get a specific Cause type (in this case the user who kicked off the build),
-                    // if present.
-                    def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
-                    echo "causes: ${causes}"
-                    echo "user: ${specificCause}"
+                    def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
+                    echo "changeset: ${commitChangeset}"
                 }
 
                 script {
