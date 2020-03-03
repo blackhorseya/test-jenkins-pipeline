@@ -21,7 +21,6 @@ pipeline {
         FULL_VERSION = "${VERSION}.${BUILD_ID}"
         IMAGE_NAME = "${DOCKER_REGISTRY_CRED_USR}/${APP_NAME}"
         CSPROJECT_NAME = "Doggy.API.WebService"
-        REPO_URL = "git@github.com:blackhorseya/test-jenkins-pipeline.git"
 
         // docker credentials
         DOCKER_REGISTRY_URL = "https://registry.hub.docker.com/"
