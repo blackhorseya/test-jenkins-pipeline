@@ -7,6 +7,9 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
     }
+    parameters {
+        booleanParam(name: 'DEBUG_BUILD', defaultValue: false, description: 'if true, never release')
+    }
     triggers {
         cron('H H(20-21) * * *')
     }
@@ -202,18 +205,8 @@ target env: ${DEPLOY_TO}
 
         stage("Create Release") {
             when {
-                anyOf {
-                    allOf {
-                        branch 'develop'
-                        triggeredBy 'TimerTrigger'
-                    }
-                    allOf {
-                        triggeredBy cause: "UserIdCause"
-                    }
-                    allOf {
-                        branch 'release/*'
-                    }
-                }
+                branch 'release/*'
+                expression { return !params.DEBUG_BUILD } 
             }
             steps {
                 echo "create release"
