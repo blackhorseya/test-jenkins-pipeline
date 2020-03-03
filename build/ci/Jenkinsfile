@@ -6,7 +6,6 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
-        skipDefaultCheckout()
     }
     triggers {
         cron('H H(20-21) * * *')
