@@ -65,24 +65,19 @@ spec:
     stages {
         stage('Prepare') {
             steps {
-                script {
-                    def causes = currentBuild.getBuildCauses()
-                    echo "causes: ${causes}"
-
-                    def triggers = currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause')
-                    echo "triggers: ${triggers}"
-
-                    def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
-                    echo "changeset: ${commitChangeset}"
-                }
-
-                script {
-                    DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
-                }
                 echo """
 branch name: ${env.GIT_BRANCH}
 target env: ${DEPLOY_TO}
 """
+                script {
+                    def causes = currentBuild.getBuildCauses()
+                    echo "causes: ${causes}"
+
+                    def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
+                    echo "changeset: ${commitChangeset}"
+                    
+                    DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
+                }
                 sh label: "print all environment variable", script: "printenv | sort"
 
                 container('builder') {
@@ -133,7 +128,7 @@ target env: ${DEPLOY_TO}
         stage('Static Code Analysis') {
             when {
                 allOf {
-                    branch '*develop*'
+                    branch 'develop'
                     expression {
                         return !currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty() || 
                         !currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause').isEmpty() }
@@ -146,7 +141,7 @@ target env: ${DEPLOY_TO}
 
         stage('Build and push docker image') {
             when {
-                branch '*develop*'
+                branch 'develop'
                 anyOf {
                     triggeredBy 'SCMTrigger'
                     triggeredBy cause: "UserIdCause"
