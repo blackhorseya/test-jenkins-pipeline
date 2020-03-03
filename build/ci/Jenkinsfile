@@ -171,7 +171,7 @@ target env: ${DEPLOY_TO}
             }
         }
 
-        stage("Deploy to ${DEPLOY_TO}") {
+        stage("Deploy") {
             when {
                 anyOf {
                     allOf {
