@@ -1,6 +1,6 @@
 using System;
 
-namespace Doggy.Jenkins
+namespace Doggy.API.WebService
 {
     public class WeatherForecast
     {
