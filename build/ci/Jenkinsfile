@@ -6,6 +6,7 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
+        parallelsAlwaysFailFast()
     }
     parameters {
         booleanParam(name: 'DEBUG_BUILD', defaultValue: false, description: 'if true, never release')
@@ -120,13 +121,34 @@ target env: ${DEPLOY_TO}
         }
 
         stage('Test') {
-            steps {
-                container('builder') {
-                    script {
-                        dotnet.test(
-                            genCoverage: true,
-                            genReport: true
-                        )
+            parallel {
+                stage('Unit Test') {
+                    steps {
+                        container('builder') {
+                            script {
+                                dotnet.test(
+                                    genCoverage: true,
+                                    genReport: true
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('Regression Test') {
+                    when {
+                        branch 'release/*'
+                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
+                        expression { return !params.DEBUG_BUILD } 
+                    }
+                    steps {
+                        container('builder') {
+                            script {
+                                dotnet.test(
+                                    genCoverage: true,
+                                    genReport: true
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -206,7 +228,7 @@ target env: ${DEPLOY_TO}
         stage("Create Release") {
             when {
                 branch 'release/*'
-                tag pattern: "\\d+\.\\d+\.\\d+", comparator: "REGEXP"
+                tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
                 expression { return !params.DEBUG_BUILD } 
             }
             steps {
