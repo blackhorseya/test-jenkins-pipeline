@@ -8,7 +8,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     triggers {
-        cron('H H/(20-21) * * *')
+        cron('H H(20-21) * * *')
     }
     environment {
         // application settings
