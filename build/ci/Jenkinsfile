@@ -142,7 +142,7 @@ target env: ${DEPLOY_TO}
                 }
             }
             steps {
-                echo "static code analysis"
+                echo "static code analysi"
             }
         }
 
