@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Doggy.Jenkins
+namespace Doggy.API.WebService
 {
     public class Program
     {

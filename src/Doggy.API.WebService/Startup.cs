@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Doggy.Jenkins
+namespace Doggy.API.WebService
 {
     public class Startup
     {

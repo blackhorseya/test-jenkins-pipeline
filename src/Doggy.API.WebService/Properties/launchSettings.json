@@ -4,8 +4,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:34160",
-      "sslPort": 44384
+      "applicationUrl": "http://localhost:2013",
+      "sslPort": 44398
     }
   },
   "profiles": {
@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Doggy.Jenkins": {
+    "Doggy.API.WebService": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
