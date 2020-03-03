@@ -69,6 +69,9 @@ spec:
                     def causes = currentBuild.getBuildCauses()
                     echo "causes: ${causes}"
 
+                    def triggers = currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause')
+                    echo "triggers: ${triggers}"
+
                     def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
                     echo "changeset: ${commitChangeset}"
                 }
