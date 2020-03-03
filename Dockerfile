@@ -4,14 +4,13 @@ WORKDIR /app
 COPY ./*.sln .
 COPY src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p src/${file%.*}/ && mv $file src/${file%.*}/; done
-RUN dotnet restore --source "http://nexus.bapls.net/repository/pls-nuget.group/" ./src/Trend.SelfService.WebService/
+RUN dotnet restore ./src/${PROJECT_NAME}/
 COPY ./src ./src
-RUN dotnet publish src/Trend.SelfService.WebService -c Release -o out
+RUN dotnet publish src/${PROJECT_NAME} -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
 WORKDIR /app
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN apk add --no-cache icu-libs
 COPY --from=dotnet-build /app/out ./
-COPY --from=npm-build /publish/wwwroot ./wwwroot
-ENTRYPOINT ["dotnet", "Trend.SelfService.WebService.dll"]
+ENTRYPOINT ["dotnet", "${PROJECT_NAME}.dll"]
