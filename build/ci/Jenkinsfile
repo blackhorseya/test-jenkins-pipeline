@@ -11,7 +11,7 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
     parameters {
-        string(name: 'PARAM_BRANCH', defaultValue: 'develop', description: 'which branch you want to build?')
+        string(name: 'branch', defaultValue: 'develop', description: 'which branch you want to build?')
     }
     environment {
         // application settings
@@ -80,6 +80,7 @@ spec:
 
                 echo """
 branch name: ${env.GIT_BRANCH}
+param branch name: ${params.branch}
 target env: ${DEPLOY_TO}
 """
                 sh label: "print all environment variable", script: "printenv | sort"
