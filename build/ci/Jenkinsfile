@@ -7,6 +7,12 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
     }
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+    parameters {
+        string(name: 'PARAM_BRANCH', defaultValue: 'develop', description: 'which branch you want to build?')
+    }
     environment {
         // application settings
         APP_NAME = "jenkins-pipeline"
@@ -29,9 +35,6 @@ pipeline {
 
         // git settings
         GIT_CREDENTIAL_ID = "github-ssh"
-    }
-    triggers {
-        pollSCM('H/5 * * * *')
     }
     agent {
         kubernetes {
