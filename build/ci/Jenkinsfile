@@ -133,7 +133,7 @@ target env: ${DEPLOY_TO}
                 container('docker') {
                     script {
                         docker.withRegistry("${DOCKER_REGISTRY_URL}", "${DOCKER_REGISTRY_ID}") {
-                            def image = docker.build("${IMAGE_NAME}:${FULL_VERSION}", "--network host --build-arg ${CSPROJECT_NAME} .")
+                            def image = docker.build("${IMAGE_NAME}:${FULL_VERSION}", "--network host --build-arg CSPROJECT_NAME=${CSPROJECT_NAME} .")
                             image.push()
                             image.push('latest')
                         }
