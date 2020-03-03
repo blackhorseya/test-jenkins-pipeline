@@ -68,9 +68,11 @@ spec:
     stages {
         stage('Prepare') {
             steps {
-                git url: "${env.GIT_URL}", branch: "${params.branch}", credentialsId: "${GIT_CREDENTIAL_ID}"
-
                 script {
+                    if (params.branch != "develop") {
+                        git url: "${env.GIT_URL}", branch: "${params.branch}", credentialsId: "${GIT_CREDENTIAL_ID}"
+                    }
+
                     def causes = currentBuild.getBuildCauses()
                     echo "causes: ${causes}"
 
