@@ -74,7 +74,7 @@ spec:
                     
                     DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
                 }
-                
+
                 echo """
 branch name: ${env.GIT_BRANCH}
 target env: ${DEPLOY_TO}
@@ -142,7 +142,7 @@ target env: ${DEPLOY_TO}
 
         stage('Build and push docker image') {
             when {
-                branch 'develop'
+                branch pattern: "\.*develop", comparator: "REGEXP"
                 anyOf {
                     triggeredBy 'SCMTrigger'
                     triggeredBy cause: "UserIdCause"
