@@ -65,10 +65,6 @@ spec:
     stages {
         stage('Prepare') {
             steps {
-                echo """
-branch name: ${env.GIT_BRANCH}
-target env: ${DEPLOY_TO}
-"""
                 script {
                     def causes = currentBuild.getBuildCauses()
                     echo "causes: ${causes}"
@@ -78,6 +74,11 @@ target env: ${DEPLOY_TO}
                     
                     DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
                 }
+                
+                echo """
+branch name: ${env.GIT_BRANCH}
+target env: ${DEPLOY_TO}
+"""
                 sh label: "print all environment variable", script: "printenv | sort"
 
                 container('builder') {
