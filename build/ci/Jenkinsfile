@@ -131,7 +131,7 @@ target env: ${DEPLOY_TO}
                 anyOf {
                     allOf {
                         branch 'develop'
-                        triggeredBy 'SCMTrigger'
+                        triggeredBy 'TimerTrigger'
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
@@ -148,7 +148,7 @@ target env: ${DEPLOY_TO}
                 anyOf {
                     allOf {
                         branch 'develop'
-                        triggeredBy 'SCMTrigger'
+                        triggeredBy 'TimerTrigger'
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
