@@ -139,8 +139,13 @@ target env: ${DEPLOY_TO}
         stage('Static Code Analysis') {
             when {
                 anyOf {
-                    triggeredBy 'SCMTrigger'
-                    triggeredBy cause: "UserIdCause"
+                    allOf {
+                        branch 'develop'
+                        triggeredBy 'SCMTrigger'
+                    }
+                    allOf {
+                        triggeredBy cause: "UserIdCause"
+                    }
                 }
             }
             steps {
@@ -151,8 +156,13 @@ target env: ${DEPLOY_TO}
         stage('Build and push docker image') {
             when {
                 anyOf {
-                    triggeredBy 'SCMTrigger'
-                    triggeredBy cause: "UserIdCause"
+                    allOf {
+                        branch 'develop'
+                        triggeredBy 'SCMTrigger'
+                    }
+                    allOf {
+                        triggeredBy cause: "UserIdCause"
+                    }
                 }
             }
             steps {
