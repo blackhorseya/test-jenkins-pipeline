@@ -142,7 +142,7 @@ target env: ${DEPLOY_TO}
 
         stage('Build and push docker image') {
             when {
-                branch pattern: "\.*develop", comparator: "REGEXP"
+                branch pattern: ".*develop", comparator: "REGEXP"
                 anyOf {
                     triggeredBy 'SCMTrigger'
                     triggeredBy cause: "UserIdCause"
