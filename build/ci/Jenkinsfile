@@ -40,7 +40,7 @@ pipeline {
         GIT_CREDENTIAL_ID = "github-ssh"
     }
     triggers {
-        pollSCM(getCrontab(GIT_BRANCH))
+        pollSCM(getCrontab(env.GIT_BRANCH))
     }
     agent {
         kubernetes {
