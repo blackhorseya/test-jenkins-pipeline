@@ -8,7 +8,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     triggers {
-        pollSCM('H/5 * * * *')
+        cron('H/5 * * * *')
     }
     environment {
         // application settings
