@@ -138,7 +138,6 @@ target env: ${DEPLOY_TO}
 
         stage('Static Code Analysis') {
             when {
-                expression { env.GIT_BRANCH ==~ /(release\/.*|.*develop.*)/ }
                 anyOf {
                     triggeredBy 'SCMTrigger'
                     triggeredBy cause: "UserIdCause"
@@ -151,7 +150,6 @@ target env: ${DEPLOY_TO}
 
         stage('Build and push docker image') {
             when {
-                expression { env.GIT_BRANCH ==~ /(release\/.*|.*develop.*)/ }
                 anyOf {
                     triggeredBy 'SCMTrigger'
                     triggeredBy cause: "UserIdCause"
