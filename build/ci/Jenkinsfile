@@ -66,10 +66,7 @@ spec:
     stages {
         stage('Prepare') {
             steps {
-                sh label: "switch git remote via ssh", script: """
-                git remote set-url origin ${REPO_URL}
-                git remote -v
-                """
+                git url: "${REPO_URL}", branch: "${env.GIT_BRANCH}", credentialsId: "${GIT_CREDENTIAL_ID}"
 
                 script {
                     def causes = currentBuild.getBuildCauses()
@@ -200,6 +197,26 @@ target env: ${DEPLOY_TO}
                 script {
                     common.gitAddTag("${GIT_CREDENTIAL_ID}", "${DEPLOY_TO}", "${VERSION}")
                 }
+            }
+        }
+
+        stage("Create Release") {
+            when {
+                anyOf {
+                    allOf {
+                        branch 'develop'
+                        triggeredBy 'TimerTrigger'
+                    }
+                    allOf {
+                        triggeredBy cause: "UserIdCause"
+                    }
+                    allOf {
+                        branch 'release/*'
+                    }
+                }
+            }
+            steps {
+                echo "create release"
             }
         }
     }
