@@ -139,10 +139,7 @@ target env: ${DEPLOY_TO}
                     steps {
                         container('builder') {
                             script {
-                                dotnet.test(
-                                    genCoverage: true,
-                                    genReport: true
-                                )
+                                error("throw regression failed")
                             }
                         }
                     }
