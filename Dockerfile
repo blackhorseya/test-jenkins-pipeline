@@ -1,5 +1,8 @@
 # build statge - backend
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS dotnet-build
+
+ARG CSPROJECT_NAME
+
 WORKDIR /app
 COPY ./*.sln .
 COPY src/*/*.csproj ./
