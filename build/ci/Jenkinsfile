@@ -191,6 +191,9 @@ target env: ${DEPLOY_TO}
             }
             steps {
                 echo "deploy to ${DEPLOY_TO}"
+                script {
+                    common.gitAddTag("${GIT_CREDENTIAL_ID}", "${DEPLOY_TO}", "${VERSION}")
+                }
             }
         }
     }
