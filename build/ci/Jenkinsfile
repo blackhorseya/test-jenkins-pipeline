@@ -8,7 +8,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     triggers {
-        cron('H/5 * * * *')
+        cron('H H/(20-21) * * *')
     }
     environment {
         // application settings
@@ -66,8 +66,7 @@ spec:
         stage('Prepare') {
             steps {
                 script {
-                    def causes = currentBuild.getBuildCauses()
-                    echo "causes: ${causes}"
+                    echo "causes: ${currentBuild.getBuildCauses()}"
 
                     def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
                     echo "changeset: ${commitChangeset}"
