@@ -10,13 +10,15 @@ pipeline {
     }
     parameters {
         booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'if true, never create release')
-        text(name: 'RELEASE_NOTE', defaultValue: """\
-<ol>
-    <li>Add a feature</li>
-    <li>Add a new config item to Web.config</li>
-    <li>Change xyz mechanism</li>
-</ol>
-        """, description: '')
+        text(name: 'RELEASE_NOTE', defaultValue: """
+### feature
+
+- new feature 1
+
+### fix
+
+- modify config
+""", description: '')
     }
     triggers {
         cron('H H(20-21) * * *')
