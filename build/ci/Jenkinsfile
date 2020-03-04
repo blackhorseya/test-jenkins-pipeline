@@ -9,7 +9,7 @@ pipeline {
         parallelsAlwaysFailFast()
     }
     parameters {
-        booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'if true, never release')
+        booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'if true, never create release')
         text(name: 'RELEASE_NOTE', defaultValue: """\
 <ol>
     <li>Add a feature</li>
