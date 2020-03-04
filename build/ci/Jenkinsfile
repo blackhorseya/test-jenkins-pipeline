@@ -236,7 +236,6 @@ target env: ${DEPLOY_TO}
             }
             environment {
                 TAG_NAME = "release-${FULL_VERSION}"
-                TAG_MSG = "${params.RELEASE_NOTE}"
             }
             steps {
                 echo "create release"
