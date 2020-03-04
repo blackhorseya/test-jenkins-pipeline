@@ -83,7 +83,7 @@ spec:
                     TAG_NAME = sh(
                         label: "get tag with current commit",
                         returnStdout: true,
-                        script: "git tag -l --points-at HEAD"
+                        script: "git ls-remote --tags -q --refs --sort=-taggerdate | grep ${GIT_COMMIT}"
                     ).trim()
                     
                     DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
