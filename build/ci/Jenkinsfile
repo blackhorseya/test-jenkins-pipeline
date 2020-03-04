@@ -244,7 +244,7 @@ target env: ${DEPLOY_TO}
                 sshagent(["${GIT_CREDENTIAL_ID}"]) {
                     sh label: "git tag ${TAG_NAME}", script: """
                     git tag --delete ${TAG_NAME} | exit 0 && git push --delete origin ${TAG_NAME} | exit 0
-                    git tag ${TAG_NAME} -m '${TAG_MSG}' && git push --tags
+                    git tag ${TAG_NAME} && git push --tags
                     """
                 }
             }
