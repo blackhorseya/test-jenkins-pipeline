@@ -144,6 +144,7 @@ target env: ${DEPLOY_TO}
                 }
                 stage('Regression Test') {
                     when {
+                        branch 'release/*'
                         triggeredBy cause: "UserIdCause"
                         expression { return !params.DEBUG_BUILD } 
                     }
@@ -227,6 +228,7 @@ target env: ${DEPLOY_TO}
 
         stage("Create Release") {
             when {
+                branch 'release/*'
                 triggeredBy cause: "UserIdCause"
                 expression { return !params.DEBUG_BUILD } 
             }
