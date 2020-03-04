@@ -86,12 +86,6 @@ spec:
                             script: 'git diff-tree --no-commit-id --name-status -r HEAD'
                         ).trim()
                     echo "changeset: ${commitChangeset}"
-
-                    TAG_NAME = sh(
-                        label: "get tag with current commit",
-                        returnStdout: true,
-                        script: "git ls-remote --tags -q --refs --sort=-taggerdate | grep ${GIT_COMMIT}"
-                    ).trim()
                     
                     DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
                 }
@@ -151,7 +145,6 @@ target env: ${DEPLOY_TO}
                 stage('Regression Test') {
                     when {
                         triggeredBy cause: "UserIdCause"
-                        tag "release-*"
                         expression { return !params.DEBUG_BUILD } 
                     }
                     steps {
@@ -235,16 +228,19 @@ target env: ${DEPLOY_TO}
         stage("Create Release") {
             when {
                 triggeredBy cause: "UserIdCause"
-                tag "release-*"
                 expression { return !params.DEBUG_BUILD } 
+            }
+            environment {
+                TAG_NAME = "release-${FULL_VERSION}"
+                TAG_MSG = "${params.RELEASE_NOTE}"
             }
             steps {
                 echo "create release"
 
                 sshagent(["${GIT_CREDENTIAL_ID}"]) {
-                    sh label: "git tag release-${FULL_VERSION}", script: """
+                    sh label: "git tag ${TAG_NAME}", script: """
                     git tag --delete ${TAG_NAME} | exit 0 && git push --delete origin ${TAG_NAME} | exit 0
-                    git tag release-${FULL_VERSION} && git push --tags
+                    git tag ${TAG_NAME} -m ${TAG_MSG} && git push --tags
                     """
                 }
             }
