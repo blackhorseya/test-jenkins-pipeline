@@ -144,6 +144,7 @@ target env: ${DEPLOY_TO}
                 stage('Regression Test') {
                     when {
                         triggeredBy cause: "UserIdCause"
+                        tag "release-*"
                         expression { return !params.DEBUG_BUILD } 
                     }
                     steps {
@@ -185,10 +186,6 @@ target env: ${DEPLOY_TO}
                     allOf {
                         triggeredBy cause: "UserIdCause"
                     }
-                    allOf {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
-                    }
                 }
             }
             steps {
@@ -214,10 +211,6 @@ target env: ${DEPLOY_TO}
                     allOf {
                         triggeredBy cause: "UserIdCause"
                     }
-                    allOf {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
-                    }
                 }
             }
             steps {
@@ -235,6 +228,7 @@ target env: ${DEPLOY_TO}
         stage("Create Release") {
             when {
                 triggeredBy cause: "UserIdCause"
+                tag "release-*"
                 expression { return !params.DEBUG_BUILD } 
             }
             steps {
