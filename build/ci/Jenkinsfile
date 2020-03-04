@@ -73,8 +73,18 @@ spec:
                     def causes = currentBuild.getBuildCauses()
                     echo "causes: ${causes}"
 
-                    def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
+                    def commitChangeset = sh(
+                            label: "get changeset", 
+                            returnStdout: true, 
+                            script: 'git diff-tree --no-commit-id --name-status -r HEAD'
+                        ).trim()
                     echo "changeset: ${commitChangeset}"
+
+                    TAG_NAME = sh(
+                        label: "get tag with current commit",
+                        returnStdout: true,
+                        script: "git tag -l --points-at HEAD"
+                    ).trim()
                     
                     DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
                 }
@@ -134,6 +144,7 @@ target env: ${DEPLOY_TO}
                 stage('Regression Test') {
                     when {
                         triggeredBy cause: "UserIdCause"
+                        expression { return !params.DEBUG_BUILD } 
                     }
                     steps {
                         container('builder') {
@@ -223,8 +234,7 @@ target env: ${DEPLOY_TO}
 
         stage("Create Release") {
             when {
-                tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                buildingTag()
+                triggeredBy cause: "UserIdCause"
                 expression { return !params.DEBUG_BUILD } 
             }
             steps {
