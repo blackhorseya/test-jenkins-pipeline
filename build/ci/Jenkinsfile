@@ -133,8 +133,7 @@ target env: ${DEPLOY_TO}
                 }
                 stage('Regression Test') {
                     when {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
+                        triggeredBy cause: "UserIdCause"
                     }
                     steps {
                         container('builder') {
@@ -157,10 +156,6 @@ target env: ${DEPLOY_TO}
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
-                    }
-                    allOf {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
                     }
                 }
             }
