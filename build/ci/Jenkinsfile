@@ -9,7 +9,16 @@ pipeline {
         parallelsAlwaysFailFast()
     }
     parameters {
-        booleanParam(name: 'DEBUG_BUILD', defaultValue: false, description: 'if true, never release')
+        booleanParam(name: 'DEBUG_BUILD', defaultValue: true, description: 'if true, never create release')
+        text(name: 'RELEASE_NOTE', defaultValue: """
+### feature
+
+- new feature 1
+
+### fix
+
+- modify config
+""", description: '')
     }
     triggers {
         cron('H H(20-21) * * *')
@@ -17,7 +26,7 @@ pipeline {
     environment {
         // application settings
         APP_NAME = "jenkins-pipeline"
-        VERSION = "1.0.1"
+        VERSION = "1.0.2"
         FULL_VERSION = "${VERSION}.${BUILD_ID}"
         IMAGE_NAME = "${DOCKER_REGISTRY_CRED_USR}/${APP_NAME}"
         CSPROJECT_NAME = "Doggy.API.WebService"
@@ -73,7 +82,11 @@ spec:
                     def causes = currentBuild.getBuildCauses()
                     echo "causes: ${causes}"
 
-                    def commitChangeset = sh(returnStdout: true, script: 'git diff-tree --no-commit-id --name-status -r HEAD').trim()
+                    def commitChangeset = sh(
+                            label: "get changeset", 
+                            returnStdout: true, 
+                            script: 'git diff-tree --no-commit-id --name-status -r HEAD'
+                        ).trim()
                     echo "changeset: ${commitChangeset}"
                     
                     DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
@@ -133,17 +146,16 @@ target env: ${DEPLOY_TO}
                 }
                 stage('Regression Test') {
                     when {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
+                        branch 'release/*'
+                        triggeredBy cause: "UserIdCause"
+                        expression { return !params.DEBUG_BUILD } 
                     }
                     steps {
                         container('builder') {
-                            script {
-                                dotnet.test(
-                                    genCoverage: true,
-                                    genReport: true
-                                )
-                            }
+                            // script {
+                            //     error("throw regression failed")
+                            // }
+                            echo "regression test success"
                         }
                     }
                 }
@@ -159,10 +171,6 @@ target env: ${DEPLOY_TO}
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
-                    }
-                    allOf {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
                     }
                 }
             }
@@ -180,10 +188,6 @@ target env: ${DEPLOY_TO}
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
-                    }
-                    allOf {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
                     }
                 }
             }
@@ -210,10 +214,6 @@ target env: ${DEPLOY_TO}
                     allOf {
                         triggeredBy cause: "UserIdCause"
                     }
-                    allOf {
-                        tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                        buildingTag()
-                    }
                 }
             }
             steps {
@@ -230,17 +230,20 @@ target env: ${DEPLOY_TO}
 
         stage("Create Release") {
             when {
-                tag pattern: "\\d+\\.\\d+\\.\\d+", comparator: "REGEXP"
-                buildingTag()
+                branch 'release/*'
+                triggeredBy cause: "UserIdCause"
                 expression { return !params.DEBUG_BUILD } 
+            }
+            environment {
+                TAG_NAME = "release-${FULL_VERSION}"
             }
             steps {
                 echo "create release"
 
                 sshagent(["${GIT_CREDENTIAL_ID}"]) {
-                    sh label: "git tag release-${FULL_VERSION}", script: """
+                    sh label: "git tag ${TAG_NAME}", script: """
                     git tag --delete ${TAG_NAME} | exit 0 && git push --delete origin ${TAG_NAME} | exit 0
-                    git tag release-${FULL_VERSION} && git push --tags
+                    git tag ${TAG_NAME} && git push --tags
                     """
                 }
             }
