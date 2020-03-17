@@ -1,10 +1,9 @@
 #!/usr/bin/env groovy
 
-@Library("jenkins-shared-libraries") _
-
 pipeline {
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        preserveStashes(buildCount: 5)
         disableConcurrentBuilds()
         parallelsAlwaysFailFast()
     }
@@ -19,32 +18,15 @@ pipeline {
 
 - modify config
 """, description: '')
-    }
+}
     triggers {
-        cron('H H(20-21) * * *')
+        pollSCM('H H(20-21) * * *')
     }
     environment {
         // application settings
-        APP_NAME = "jenkins-pipeline"
-        VERSION = "1.0.2"
+        APP_NAME = "test-jenkins-pipeline"
+        VERSION = "1.0.0"
         FULL_VERSION = "${VERSION}.${BUILD_ID}"
-        IMAGE_NAME = "${DOCKER_REGISTRY_CRED_USR}/${APP_NAME}"
-        CSPROJECT_NAME = "Doggy.API.WebService"
-
-        // docker credentials
-        DOCKER_REGISTRY_URL = "https://registry.hub.docker.com/"
-        DOCKER_REGISTRY_ID = "docker-hub-credential"
-        DOCKER_REGISTRY_CRED = credentials("${DOCKER_REGISTRY_ID}")
-
-        // sonarqube settings
-        SONARQUBE_HOST_URL = "https://sonar.blackhorseya.com"
-        SONARQUBE_TOKEN = credentials('sonarqube-token')
-
-        // kubernetes settings
-        KUBE_CONFIG_ID = "kube-config"
-
-        // git settings
-        GIT_CREDENTIAL_ID = "github-ssh"
     }
     agent {
         kubernetes {
@@ -88,20 +70,16 @@ spec:
                             script: 'git diff-tree --no-commit-id --name-status -r HEAD'
                         ).trim()
                     echo "changeset: ${commitChangeset}"
-                    
-                    DEPLOY_TO = common.getTargetEnv("${GIT_BRANCH}")
                 }
 
-                echo """
-branch name: ${env.GIT_BRANCH}
-target env: ${DEPLOY_TO}
-"""
-                sh label: "print all environment variable", script: "printenv | sort"
+                sh label: "print all environment variable", script: """
+                printenv | sort
+                """
 
                 container('builder') {
-                    script {
-                        dotnet.printInfo()
-                    }
+                    sh label: "print dotnet info", script: """
+                    dotnet --info
+                    """
                 }
 
                 container('docker') {
@@ -113,8 +91,9 @@ target env: ${DEPLOY_TO}
 
                 container('helm') {
                     script {
-                        deploy.helmInfo()
-                        deploy.copyConfig("${KUBE_CONFIG_ID}")
+                        sh label: "print helm info", script: """
+                        helm version
+                        """
                     }
                 }
             }
@@ -123,9 +102,7 @@ target env: ${DEPLOY_TO}
         stage('Build') {
             steps {
                 container('builder') {
-                    script {
-                        dotnet.build(useCache: true)
-                    }
+                    echo "dotnet build"
                 }
             }
         }
@@ -135,12 +112,7 @@ target env: ${DEPLOY_TO}
                 stage('Unit Test') {
                     steps {
                         container('builder') {
-                            script {
-                                dotnet.test(
-                                    genCoverage: true,
-                                    genReport: true
-                                )
-                            }
+                            echo "dotnet test"
                         }
                     }
                 }
@@ -152,9 +124,6 @@ target env: ${DEPLOY_TO}
                     }
                     steps {
                         container('builder') {
-                            // script {
-                            //     error("throw regression failed")
-                            // }
                             echo "regression test success"
                         }
                     }
@@ -193,13 +162,7 @@ target env: ${DEPLOY_TO}
             }
             steps {
                 container('docker') {
-                    script {
-                        docker.withRegistry("${DOCKER_REGISTRY_URL}", "${DOCKER_REGISTRY_ID}") {
-                            def image = docker.build("${IMAGE_NAME}:${FULL_VERSION}", "--network host --build-arg CSPROJECT_NAME=${CSPROJECT_NAME} .")
-                            image.push()
-                            image.push('latest')
-                        }
-                    }
+                    echo "docker build and push image"
                 }
             }
         }
@@ -217,44 +180,14 @@ target env: ${DEPLOY_TO}
                 }
             }
             steps {
-                echo "deploy to ${DEPLOY_TO}"
-
-                sshagent(["${GIT_CREDENTIAL_ID}"]) {
-                    sh label: "git tag latest", script: """
-                    git tag --delete latest | exit 0 && git push --delete origin latest | exit 0
-                    git tag latest && git push --tags
-                    """
-                }
-            }
-        }
-
-        stage("Create Release") {
-            when {
-                branch 'release/*'
-                triggeredBy cause: "UserIdCause"
-                expression { return !params.DEBUG_BUILD } 
-            }
-            environment {
-                TAG_NAME = "release-${FULL_VERSION}"
-            }
-            steps {
-                echo "create release"
-
-                sshagent(["${GIT_CREDENTIAL_ID}"]) {
-                    sh label: "git tag ${TAG_NAME}", script: """
-                    git tag --delete ${TAG_NAME} | exit 0 && git push --delete origin ${TAG_NAME} | exit 0
-                    git tag ${TAG_NAME} && git push --tags
-                    """
-                }
+                echo "deploy to env"
             }
         }
     }
 
     post {
         always {
-            script {
-                notify.sendSlack()
-            }
+            echo "done"
         }
     }
 }
