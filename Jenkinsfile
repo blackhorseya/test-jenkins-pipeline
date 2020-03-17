@@ -136,7 +136,7 @@ spec:
                 anyOf {
                     allOf {
                         branch 'develop'
-                        triggeredBy 'TimerTrigger'
+                        triggeredBy 'SCMTrigger'
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
@@ -153,7 +153,7 @@ spec:
                 anyOf {
                     allOf {
                         branch 'develop'
-                        triggeredBy 'TimerTrigger'
+                        triggeredBy 'SCMTrigger'
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
@@ -172,7 +172,7 @@ spec:
                 anyOf {
                     allOf {
                         branch 'develop'
-                        triggeredBy 'TimerTrigger'
+                        triggeredBy 'SCMTrigger'
                     }
                     allOf {
                         triggeredBy cause: "UserIdCause"
@@ -180,7 +180,9 @@ spec:
                 }
             }
             steps {
-                echo "deploy to env"
+                container('helm') {
+                    echo "deploy to env"
+                }
             }
         }
     }
